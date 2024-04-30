@@ -104,8 +104,8 @@ def verifySAMLResponse(response):
     issuer = root.find("saml:Issuer").text
     #Estrazione dello status code
     statusCode = root.find("samlp:Status/samlp:StatusCode").attrib["Value"]
-    #Verifica del timestamp
-    if datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ') != timestamp:
+    #Verifica del timestamp con un buffer di 30 secondi
+    if datetime.datetime.now() - datetime.datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%fZ') > datetime.timedelta(seconds=30):
         return False
     #Verifica dell'issuer
     if issuer != "IdP":
