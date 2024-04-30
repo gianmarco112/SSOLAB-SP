@@ -78,34 +78,7 @@ def createSAMLRequest():
     #Ritorno della stringa
     return decoded
 
-#Funzione per la creazione della SAML response
 
-def createSAMLResponse():
-    #Creazione dell'ID della SAML response
-    responseID = "_" + str(uuid.uuid4())
-    #Creazione del timestamp
-    timestamp = datetime.datetime.now().isoformat()
-    #Creazione del file XML
-    root = ET.Element("samlp:Response", xmlns="urn:oasis:names:tc:SAML:2.0:protocol", ID=responseID, Version="2.0", IssueInstant=timestamp, Destination="http://localhost:5000/acs")
-    issuer = ET.SubElement(root, "saml:Issuer")
-    issuer.text = "SP"
-    status = ET.SubElement(root, "samlp:Status")
-    statusCode = ET.SubElement(status, "samlp:StatusCode", Value="urn:oasis:names:tc:SAML:2.0:status:Success")
-    assertion = ET.SubElement(root, "saml:Assertion", xmlns="urn:oasis:names:tc:SAML:2.0:assertion", ID="assertionID")
-    #Creazione del file XML
-    tree = ET.ElementTree(root)
-    #Creazione del file XML
-    tree.write("SAMLResponse.xml")
-    #Apertura del file XML
-    file = open("SAMLResponse.xml", "r")
-    #Lettura del file XML
-    data = file.read()
-    #Codifica in base64
-    encoded = base64.b64encode(data.encode())
-    #Decodifica in stringa
-    decoded = encoded.decode()
-    #Ritorno della stringa
-    return decoded
 
 #Funzione per la verifica della SAML response
 def verifySAMLResponse(response):
@@ -138,34 +111,18 @@ def verifySAMLResponse(response):
     assertion = root.find(".//saml:Assertion", namespaces={"saml": "urn:oasis:names:tc:SAML:2.0:assertion"})
     if assertion.attrib["ID"] != "assertionID":
         return False
-    return True
-
-#Verifica della SAML response con l'IdP tramite API
-def verifySAMLResponseWithIdP(response):
-    #Decodifica in base64
-    decoded = base64.b64decode(response)
-    #Creazione del file XML
-    file = open("SAMLResponse.xml", "w")
-    #Scrittura del file XML
-    file.write(decoded.decode())
-    #Chiusura del file XML
-    file.close()
-    #Apertura del file XML
-    file = open("SAMLResponse.xml", "r")
-    #Lettura del file XML
-    data = file.read()
-    #Parsing del file XML
-    root = ET.fromstring(data)
-    #Verifica dell'ID della SAML response
+    #verifica con l'IdP tramite API
     responseID = root.attrib["ID"]
-    #Verifica del timestamp
-    timestamp = root.attrib["IssueInstant"]
-    #Verifica della SAML response con l'IdP
     url = "http://localhost:8080/verify"
     headers = {"Content-Type": "application/json"}
     body = {"responseID": responseID, "timestamp": timestamp}
     response = requests.post(url, headers=headers, data=json.dumps(body))
-    return response.json()
+    if response.json():
+        return True
+    else:
+        return False
+    
+
 
 
 
