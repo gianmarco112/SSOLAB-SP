@@ -1,4 +1,4 @@
-```markdown
+
 # SSOLAB-SP
 
 Questo repository contiene l'implementazione di un service provider (SP) per il Single Sign-On (SSO) del Gruppo 2.
