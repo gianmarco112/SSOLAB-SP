@@ -182,12 +182,33 @@ def acs():
     #Verifica della SAML response
     response = request.data.decode()
     if verifySAMLResponse(response):
-        #Creazione della SAML response
-        samlResponse = createSAMLResponse()
-        #Ritorno della SAML response
-        return samlResponse
+        #Verifica della SAML response con l'IdP
+        if verifySAMLResponseWithIdP(response):
+            #Creazione della SAML response
+            samlResponse = createSAMLResponse()
+            #Ritorno della SAML response
+            return samlResponse
+        else:
+            return "Errore"
     else:
-        return "Invalid SAML response"
+        return "Errore"
+    
+@app.route("/slo", methods=["POST"])
+def slo():
+    #Verifica della SAML response
+    response = request.data.decode()
+    if verifySAMLResponse(response):
+        #Verifica della SAML response con l'IdP
+        if verifySAMLResponseWithIdP(response):
+            #Creazione della SAML response
+            samlResponse = createSAMLResponse()
+            #Ritorno della SAML response
+            return samlResponse
+        else:
+            return "Errore"
+    else:
+        return "Errore"
+    
     
 if __name__ == "__main__":
     app.run(port=5000)
