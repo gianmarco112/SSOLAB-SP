@@ -51,85 +51,73 @@ import uuid
 import hashlib
 from urllib.parse import urlparse
 from flask_cors import CORS
+#import classes from saml.py
+from saml import SAMLRequest
+from saml import SAMLResponse
+from saml import ServiceProvider
 
 app = Flask(__name__)
 CORS(app)
 
 #Definisci la classe per la saml request
-class SAMLRequest:
-    def __init__(self, ID, Version, IssueInstant, Destination):
-        self.ID = ID
-        self.Version = Version
-        self.IssueInstant = IssueInstant
-        self.Destination = Destination
-        self.Issuer = "SP"
-        
-    def toXML(self):
-        root = ET.Element("samlp:AuthnRequest", xmlns="urn:oasis:names:tc:SAML:2.0:protocol", ID=self.ID, Version=self.Version, IssueInstant=self.IssueInstant, Destination=self.Destination)
-        issuer = ET.SubElement(root, "saml:Issuer")
-        issuer.text = self.Issuer
-        tree = ET.ElementTree(root)
-        tree.write("SAMLRequest.xml")
-        file = open("SAMLRequest.xml", "r")
-        data = file.read()
-        encoded = base64.b64encode(data.encode())
-        decoded = encoded.decode()
-        return decoded
 
 #Funzione per la creazione della SAML request
 def createSAMLRequest():
-    ID = str(uuid.uuid4())
-    Version = "2.0"
-    IssueInstant = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
-    Destination = "http://localhost:5000/acs"
-    samlRequest = SAMLRequest(ID, Version, IssueInstant, Destination)
-    return samlRequest.toXML()
-
-
-#Funzione per la verifica della SAML response
-def verifySAMLResponse(response):
-    #Decodifica in base64
-    decoded = base64.b64decode(response)
+    #Generazione dell'ID della richiesta
+    requestID = str(uuid.uuid4())
+    #Generazione del timestamp
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    #Creazione della SAML request
+    samlRequest = SAMLRequest(requestID, "2.0", timestamp, "http://localhost:5000/acs")
+    #Creazione dell'elemento XML
+    requestXML = ET.Element("samlp:AuthnRequest", xmlns="urn:oasis:names:tc:SAML:2.0:protocol", ID=samlRequest.ID, Version=samlRequest.Version, IssueInstant=samlRequest.IssueInstant)
+    #Creazione dell'elemento Issuer
+    issuer = ET.SubElement(requestXML, "saml:Issuer", xmlns="urn:oasis:names:tc:SAML:2.0:assertion")
+    #Inserimento del valore dell'issuer
+    issuer.text = "SP"
     #Creazione del file XML
-    file = open("SAMLResponse.xml", "w")
+    file = open("SAMLRequest.xml", "w")
     #Scrittura del file XML
-    file.write(decoded.decode())
+    file.write(ET.tostring(requestXML).decode())
     #Chiusura del file XML
     file.close()
     #Apertura del file XML
-    file = open("SAMLResponse.xml", "r")
+    file = open("SAMLRequest.xml", "r")
     #Lettura del file XML
     data = file.read()
-    #Parsing del file XML
-    root = ET.fromstring(data)
-    #Verifica della versione
-    if root.attrib["Version"] != "2.0":
-        return False
-    #Verifica del timestamp
-    timestamp = datetime.datetime.strptime(root.attrib["IssueInstant"], "%Y-%m-%dT%H:%M:%S.%f")
-    if (datetime.datetime.now() - timestamp).total_seconds() > 60:
-        return False
-    #Verifica del codice di auth
-    statusCode = root.find(".//samlp:StatusCode", namespaces={"samlp": "urn:oasis:names:tc:SAML:2.0:protocol"})
-    if statusCode.attrib["Value"] != "urn:oasis:names:tc:SAML:2.0:status:Success":
-        return False
-    #Verifica dell'ID dell'assertion
-    assertion = root.find(".//saml:Assertion", namespaces={"saml": "urn:oasis:names:tc:SAML:2.0:assertion"})
-    if assertion.attrib["ID"] != "assertionID":
-        return False
-    #verifica con l'IdP tramite API
+    #Codifica in base64
+    encoded = base64.b64encode(data.encode())
+    #Ritorno della SAML request
+    return encoded.decode()
+
+#Funzione per la verifica della SAML response
+def verifySAMLResponse(response):
+    #Decodifica della SAML response
+    decoded = base64.b64decode(response)
+    #Parsing della SAML response
+    root = ET.fromstring(decoded)
+    #Estrazione del timestamp
+    timestamp = root.attrib["IssueInstant"]
+    #Estrazione dell'ID della response
     responseID = root.attrib["ID"]
-    url = "http://localhost:8080/verify"
-    headers = {"Content-Type": "application/json"}
-    body = {"responseID": responseID, "timestamp": timestamp}
-    response = requests.post(url, headers=headers, data=json.dumps(body))
-    if response.json():
+    #Estrazione dell'issuer
+    issuer = root.find("saml:Issuer").text
+    #Estrazione dello status code
+    statusCode = root.find("samlp:Status/samlp:StatusCode").attrib["Value"]
+    #Verifica del timestamp
+    if datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ') != timestamp:
+        return False
+    #Verifica dell'issuer
+    if issuer != "IdP":
+        return False
+    #Verifica dello status code
+    if statusCode != "urn:oasis:names:tc:SAML:2.0:status:Success":
+        return False
+    #Verifica dell'ID della response
+    if ServiceProvider().verify_response(decoded, SAMLResponse()):
         return True
     else:
         return False
-    
-
-
 
 
 #API per l'interfacciamento
