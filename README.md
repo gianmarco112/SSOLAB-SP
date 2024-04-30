@@ -1,9 +1,9 @@
 
-# SSOLAB-SP
+# 🔐 SSOLAB-SP 🦺
 
 Questo repository contiene l'implementazione di un service provider (SP) per il Single Sign-On (SSO) del Gruppo 2.
 
-## Funzionalità
+## 🛠️ Funzionalità 🛠️
 
 Il SSOLAB-SP è responsabile delle seguenti attività:
 
@@ -11,7 +11,7 @@ Il SSOLAB-SP è responsabile delle seguenti attività:
 2. Accettare le risposte SAML e verificarne la validità insieme all'Identity Provider (IdP) associato, interrogando l'IdP per confermare se ha generato la risposta con un determinato ID in un determinato momento.
 3. Inviare la conferma di autenticazione (o il fallimento) all'utente.
 
-## Endpoint dell'API
+## 🐝 Endpoint dell'API 🐝
 
 I seguenti endpoint dell'API sono disponibili per l'interfacciamento:
 
@@ -19,7 +19,7 @@ I seguenti endpoint dell'API sono disponibili per l'interfacciamento:
 2. `/acs` - Riceve le risposte SAML e verifica l'autenticazione dell'utente.
 3. `/slo` - Gestisce le richieste di Single Logout (SLO).
 
-## Formato della Richiesta e della Risposta SAML
+## 🎫 Formato della Richiesta e della Risposta SAML 🎫
 
 ### Risposta SAML (Esempio)
 ```xml
