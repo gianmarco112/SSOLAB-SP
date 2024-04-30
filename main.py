@@ -6,3 +6,27 @@
 #3. Inviare la conferma di Auth all’utente (o fallimento)
 
 #API per l'interfacciamento
+#1. /auth
+#2. /acs
+#3. /slo
+
+from flask import Flask, request, jsonify
+import requests
+import json
+import datetime
+import os
+import base64
+import xml.etree.ElementTree as ET
+import xml.dom.minidom
+import xmltodict
+import uuid
+import hashlib
+from urllib.parse import urlparse
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
+
+#Funzione per la creazione della SAML request
+
+
