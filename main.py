@@ -136,35 +136,21 @@ def auth():
 
 @app.route("/acs", methods=["POST"])
 def acs():
-    #Verifica della SAML response
+    #Verifica della SAML response e return se può accedere o meno
     response = request.data.decode()
     if verifySAMLResponse(response):
-        #Verifica della SAML response con l'IdP
-        if verifySAMLResponseWithIdP(response):
-            #Creazione della SAML response
-            samlResponse = createSAMLResponse()
-            #Ritorno della SAML response
-            return samlResponse
-        else:
-            return "Errore"
+        return "Accesso consentito"
     else:
-        return "Errore"
+        return "Accesso negato"
     
 @app.route("/slo", methods=["POST"])
 def slo():
     #Verifica della SAML response
     response = request.data.decode()
     if verifySAMLResponse(response):
-        #Verifica della SAML response con l'IdP
-        if verifySAMLResponseWithIdP(response):
-            #Creazione della SAML response
-            samlResponse = createSAMLResponse()
-            #Ritorno della SAML response
-            return samlResponse
-        else:
-            return "Errore"
+        return "Logout effettuato"
     else:
-        return "Errore"
+        return "Errore durante il logout"
     
     
 if __name__ == "__main__":
