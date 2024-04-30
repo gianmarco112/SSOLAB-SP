@@ -28,6 +28,16 @@
 #</saml:Assertion>
 #</samlp:Response>
 
+#<samlp:AuthnRequest
+#ID="requestID" //Generato random dall’SP
+#Version="2.0" // Check della versione
+#IssueInstant="timestamp" > // Istante di richiesta
+#<\saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+#SP-Entity-ID // Identità dell’SP (nome o ID, decidete voi se coincidono)
+#</saml:Issuer>
+#</samlp:AuthnRequest>
+
+
 from flask import Flask, request, jsonify
 import requests
 import json
@@ -52,32 +62,28 @@ class SAMLRequest:
         self.Version = Version
         self.IssueInstant = IssueInstant
         self.Destination = Destination
+        self.Issuer = "SP"
+        
+    def toXML(self):
+        root = ET.Element("samlp:AuthnRequest", xmlns="urn:oasis:names:tc:SAML:2.0:protocol", ID=self.ID, Version=self.Version, IssueInstant=self.IssueInstant, Destination=self.Destination)
+        issuer = ET.SubElement(root, "saml:Issuer")
+        issuer.text = self.Issuer
+        tree = ET.ElementTree(root)
+        tree.write("SAMLRequest.xml")
+        file = open("SAMLRequest.xml", "r")
+        data = file.read()
+        encoded = base64.b64encode(data.encode())
+        decoded = encoded.decode()
+        return decoded
 
 #Funzione per la creazione della SAML request
 def createSAMLRequest():
-    #Creazione dell'ID della SAML request
-    requestID = "_" + str(uuid.uuid4()) #Genera un ID univoco esempio: _f4f3d8f3-3b0d-4f6d-8b0f-2f3f4d3f4d3f
-    #Creazione del timestamp
-    timestamp = datetime.datetime.now().isoformat() #Genera un timestamp esempio: 2021-06-01T12:00:00.000000
-    #Creazione del file XML
-    root = ET.Element("samlp:AuthnRequest", xmlns="urn:oasis:names:tc:SAML:2.0:protocol", ID=requestID, Version="2.0", IssueInstant=timestamp, Destination="http://localhost:5000/acs") #Crea il tag radice del file XML
-    issuer = ET.SubElement(root, "saml:Issuer") #Crea il tag figlio del tag radice
-    issuer.text = "SP"
-    #Creazione del file XML
-    tree = ET.ElementTree(root) #Crea l'albero del file XML
-    #Creazione del file XML
-    tree.write("SAMLRequest.xml") #Scrive il file XML esempio: <samlp:AuthnRequest xmlns="urn:oasis:names:tc:SAML:2.0:protocol" ID="_f4f3d8f3-3b0d-4f6d-8b0f-2f3f4d3f4d3f" Version="2.0" IssueInstant="2021-06-01T12:00:00.000000" Destination="http://localhost:5000/acs"><saml:Issuer>SP</saml:Issuer></samlp:AuthnRequest>
-    #Apertura del file XML
-    file = open("SAMLRequest.xml", "r") #Apre il file XML 
-    #Lettura del file XML
-    data = file.read() #Legge il file XML
-    #Codifica in base64
-    encoded = base64.b64encode(data.encode()) #Codifica il file XML in base64 esempio: 
-    #Decodifica in stringa
-    decoded = encoded.decode() #Decodifica il file XML in stringa esempio: PHNhbWxwOkF1dGhuUmVxdWVzdCB4bWxucz0iaHR0cDovL2xvY2FsaG9zdDo1MDAwL2FjcyIgSUQ9Il9mNGYzZDhmMy0zYjBkLTRmNmQtOGIwZi0yZjNmNGQzZjRkM2YiIFZlcnNpb249IjIuMCIgSXNzdWluZ0luc3RhbnQ9IjIwMjEtMDYtMDFUMTI6MDA6MDAuMDAwMDAwIiBEZXN0aW5hdGlvbj0iaHR0cDovL2xvY2FsaG9zdDo1MDAwL2FjcyI+PHNhbWw6SXNzdWluZz5TUDwvc2FtbDpJc3N1aW5nPg==
-    #Ritorno della stringa
-    return decoded
-
+    ID = str(uuid.uuid4())
+    Version = "2.0"
+    IssueInstant = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+    Destination = "http://localhost:5000/acs"
+    samlRequest = SAMLRequest(ID, Version, IssueInstant, Destination)
+    return samlRequest.toXML()
 
 
 #Funzione per la verifica della SAML response
