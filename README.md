@@ -61,12 +61,14 @@ Questa implementazione è realizzata utilizzando Flask, un framework leggero per
 1. Assicurarsi che Python e Flask siano installati.
 2. Clonare questo repository.
 3. Navigare nella directory clonata.
-4. Eseguire `python <filename>.py`.
+4. Eseguire `python main.py`.
 5. Il servizio verrà avviato su `http://localhost:5000`.
 
 ## Contribuenti
 
-- [Lista dei contribuenti]
-
-```
-Sostituire `[Lista dei contribuenti]` con l'effettiva lista dei contribuenti al progetto. Questo Readme fornisce una panoramica del progetto, delle sue funzionalità, degli endpoint dell'API, dei formati di richiesta e risposta SAML, dei dettagli implementativi e delle istruzioni per l'esecuzione del servizio. Sentiti libero di modificarlo in base ai requisiti e ai dettagli specifici del tuo progetto.
+- Gianmarco
+- Mattia
+- Davide
+- Alessandro
+- Tommaso
+- Nicola
