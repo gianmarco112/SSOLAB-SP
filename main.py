@@ -77,6 +77,7 @@ def createSAMLRequest():
     decoded = encoded.decode() #Decodifica il file XML in stringa esempio: PHNhbWxwOkF1dGhuUmVxdWVzdCB4bWxucz0iaHR0cDovL2xvY2FsaG9zdDo1MDAwL2FjcyIgSUQ9Il9mNGYzZDhmMy0zYjBkLTRmNmQtOGIwZi0yZjNmNGQzZjRkM2YiIFZlcnNpb249IjIuMCIgSXNzdWluZ0luc3RhbnQ9IjIwMjEtMDYtMDFUMTI6MDA6MDAuMDAwMDAwIiBEZXN0aW5hdGlvbj0iaHR0cDovL2xvY2FsaG9zdDo1MDAwL2FjcyI+PHNhbWw6SXNzdWluZz5TUDwvc2FtbDpJc3N1aW5nPg==
     #Ritorno della stringa
     return decoded
+
 #Funzione per la creazione della SAML response
 
 def createSAMLResponse():
@@ -138,6 +139,35 @@ def verifySAMLResponse(response):
     if assertion.attrib["ID"] != "assertionID":
         return False
     return True
+
+#Verifica della SAML response con l'IdP tramite API
+def verifySAMLResponseWithIdP(response):
+    #Decodifica in base64
+    decoded = base64.b64decode(response)
+    #Creazione del file XML
+    file = open("SAMLResponse.xml", "w")
+    #Scrittura del file XML
+    file.write(decoded.decode())
+    #Chiusura del file XML
+    file.close()
+    #Apertura del file XML
+    file = open("SAMLResponse.xml", "r")
+    #Lettura del file XML
+    data = file.read()
+    #Parsing del file XML
+    root = ET.fromstring(data)
+    #Verifica dell'ID della SAML response
+    responseID = root.attrib["ID"]
+    #Verifica del timestamp
+    timestamp = root.attrib["IssueInstant"]
+    #Verifica della SAML response con l'IdP
+    url = "http://localhost:8080/verify"
+    headers = {"Content-Type": "application/json"}
+    body = {"responseID": responseID, "timestamp": timestamp}
+    response = requests.post(url, headers=headers, data=json.dumps(body))
+    return response.json()
+
+
 
 #API per l'interfacciamento
 @app.route("/auth", methods=["GET"])
