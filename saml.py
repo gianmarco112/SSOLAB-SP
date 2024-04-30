@@ -46,26 +46,26 @@ class ServiceProvider:
             return False
 
 # Esempio di utilizzo
-idp = SAMLResponse()
-sp = ServiceProvider()
+#idp = SAMLResponse()
+#sp = ServiceProvider()
 
 # Generazione di una richiesta SAML
-user_id = "alice"
-request_xml = SAMLRequest().generate(user_id)
-print("SAML Request:")
-print(request_xml)
+#user_id = "alice"
+#request_xml = SAMLRequest().generate(user_id)
+#print("SAML Request:")
+#print(request_xml)
 
 # Parsing della richiesta SAML
-parsed_user_id = SAMLRequest().parse(request_xml)
-print("\nParsed User ID:")
-print(parsed_user_id)
+#parsed_user_id = SAMLRequest().parse(request_xml)
+#print("\nParsed User ID:")
+#print(parsed_user_id)
 
 # Generazione di una risposta SAML
-response_xml = idp.generate(user_id)
-print("\nSAML Response:")
-print(response_xml)
+#response_xml = idp.generate(user_id)
+#print("\nSAML Response:")
+#print(response_xml)
 
 # Verifica della risposta SAML da parte del Service Provider
-verification_result = sp.verify_response(response_xml, idp)
-print("\nResponse Verification Result:")
-print(verification_result)
+#verification_result = sp.verify_response(response_xml, idp)
+#print("\nResponse Verification Result:")
+#print(verification_result)
