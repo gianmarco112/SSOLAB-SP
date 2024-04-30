@@ -66,9 +66,10 @@ Questa implementazione è realizzata utilizzando Flask, un framework leggero per
 
 ## Contribuenti
 
-- Gianmarco
-- Mattia @ErMaT02
-- Davide @QualcunoACaso
-- Alessandro @GAle982
-- Tommaso @GitKindr3d
-- Nicola @Nex3ren
+
+Gianmarco [@gianmarco112](https://github.com/gianmarco112)
+Mattia [@ErMaT02](https://github.com/ErMaT02)
+Davide [@QualcunoACaso](https://github.com/QualcunoACaso)
+Alessandro [@GAle982](https://github.com/GAle982)
+Tommaso [@GitKindr3d](https://github.com/GitKindr3d)
+Nicola [@Nex3ren](https://github.com/Nex3ren)
